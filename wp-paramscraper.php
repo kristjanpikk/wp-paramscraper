@@ -119,9 +119,11 @@ HTML;
 			session_start();
 		}
 
-		foreach ( get_option( 'paramscraper-input' ) as $param ) {
-			if ( isset( $_GET[$param] ) ) {
-				$_SESSION['paramscraper'][$param] = $_GET[$param];
+		if ( get_option( 'paramscraper-input' !== '' ) ) {
+			foreach ( get_option( 'paramscraper-input' ) as $param ) {
+				if ( isset( $_GET[$param] ) ) {
+					$_SESSION['paramscraper'][$param] = $_GET[$param];
+				}
 			}
 		}
 	}
