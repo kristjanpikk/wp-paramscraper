@@ -69,9 +69,9 @@ class WpParamscraper {
 				<button class="add-param">Add new param</button>
 				<div class="all-params">
 					<?php
-						foreach ( get_option( 'paramscraper-input' ) as $param) {
-							echo self::render_input( $param );
-						}
+					foreach ( get_option( 'paramscraper-input' ) as $param ) {
+						echo self::render_input( $param );
+					}
 					?>
 				</div>
 				<input type="submit" name="submit" value="Save"></input>
@@ -119,31 +119,57 @@ HTML;
 			session_start();
 		}
 
-		if ( get_option( 'paramscraper-input' !== '' ) ) {
-			foreach ( get_option( 'paramscraper-input' ) as $param ) {
-				if ( isset( $_GET[$param] ) ) {
-					$_SESSION['paramscraper'][$param] = $_GET[$param];
-				}
+		$params = [];
+		foreach ( get_option( 'paramscraper-input' ) as $param ) {
+			if ( isset( $_GET[$param] ) && ! empty( $_GET[$param] ) ) {
+				$params[$param] = $_GET[$param];
 			}
+		}
+
+		if ( count( $params ) ) {
+			$_SESSION['paramscraper_params'] = $params;
 		}
 	}
 
 	/**
-	 * Get params from session using shortcode
+	 * Get param from session using shortcode
 	 *
-	 * @param  [type] $atts [description]
-	 * @return [type]       [description]
+	 * @param  string $atts [description].
+	 * @return string       [description]
 	 */
-	public static function get_params( $atts ) {
+	public static function get_param( $atts ) {
 
 		$atts = shortcode_atts( array(
 			'param' => $param,
 		), $atts, 'get_param' );
 
-		if ( isset( $_SESSION['paramscraper'][$atts['param']] ) ) {
-			return $_SESSION['paramscraper'][$atts['param']];
+		if ( isset( $_SESSION['paramscraper_params'][$atts['param']] ) ) {
+			return $_SESSION['paramscraper_params'][$atts['param']];
+		}
+	}
+
+	/**
+	 * Get params from session
+	 *
+	 * @return array  array of params
+	 */
+	public static function get_params() {
+
+		if ( ! session_id() ) {
+			session_start();
 		}
 
+		if ( ! isset( $_SESSION['paramscraper_params'] ) ) {
+			return [];
+		}
+
+		$params = [];
+		foreach ( get_option( 'paramscraper-input' ) as $param ) {
+			if ( isset( $_SESSION['paramscraper_params'][$param] ) && ! empty( $_SESSION['paramscraper_params'][$param] ) ) {
+				$params[$param] = $_SESSION['paramscraper_params'][$param];
+			}
+		}
+		return $params;
 	}
 
 }
